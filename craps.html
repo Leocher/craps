@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Craps game</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script type="text/javascript">
+        var cwidth = 400;
+        var cheight = 300;
+        var dicex = 50;
+        var dicey = 50;
+        var dicewidth = 100;
+        var diceheight = 100;
+        var dotrad = 6;
+        var context;
+        var dx;
+        var dy;
+        var firstturn = true;
+        var point;
+        function throwdice() {
+            var sum;
+            var ch = 1+Math.floor(Math.random()*6);
+            sum = ch;
+            dx = dicex;
+            dy = dicey;
+            drawface(ch);
+            dx = dicex + 150;
+            ch=1 + Math.floor(Math.random()*6);
+            sum += ch;
+            drawface(ch);
+            var bank = Number(document.f.bank.value);
+            if(bank < 10){
+                alert("抱歉，您的钱快要用完了，需要充值后才能继续游戏");
+                return;
+            }
+            if (firstturn) {
+                switch(sum) {
+                    case 7:
+                    case 11:
+                        document.f.outcome.value="你赢啦!";
+                        bank += 20;
+                        document.f.bank.value = String(bank);
+                        break;
+                    case 2:
+                    case 3:
+                    case 12:
+                        document.f.outcome.value="你输啦!";
+                        bank -= 10;
+                        document.f.bank.value = String(bank);
+                        break;
+                    default:
+                        point = sum;
+                        document.f.pv.value=point;
+                        firstturn = false;
+                        document.f.stage.value="需要继续投掷";
+                        document.f.outcome.value="   ";
+                }
+            }
+            else {
+                switch(sum) {
+                    case point:
+                        document.f.outcome.value="你赢啦!";
+                        document.f.stage.value="返回第一次投掷";
+                        document.f.pv.value=" ";
+                        firstturn = true;
+                        bank += 20;
+                        document.f.bank.value = String(bank);
+                        break;
+                    case 7:
+                        document.f.outcome.value="你输啦!";
+                        document.f.stage.value="返回第一次投掷";
+                        document.f.pv.value=" ";
+                        firstturn = true;
+                        bank -= 10;
+                        document.f.bank.value = String(bank);
+                }
+            }
+        }
+        function drawface(n) {
+          context = document.getElementById('canvas').getContext('2d');
+          context.lineWidth = 5;
+          context.clearRect(dx,dy,dicewidth,diceheight);
+          context.strokeRect(dx,dy,dicewidth,diceheight);
+          var dotx;
+          var doty;
+          context.fillStyle = "#009966";
+            switch(n) {
+                case 1:
+                 draw1();
+                 break;
+                case 2:
+                 draw2();
+                 break;
+                case 3:
+                 draw2();
+                 draw1();
+                 break;
+                case 4:
+                 draw4();
+                 break;
+                case 5:
+                 draw4();
+                 draw1();
+                 break;
+                case 6:
+                 draw4();
+                 draw2mid();
+                 break;
+
+            }
+        }
+        function draw1() {
+            var dotx;
+            var doty;
+            context.beginPath();
+            dotx = dx + .5*dicewidth;
+            doty = dy + .5*diceheight;
+            context.arc(dotx,doty,dotrad,0,Math.PI*2,true);
+            context.closePath();
+            context.fill();
+        }
+        function draw2() {
+            var dotx;
+            var doty;
+            context.beginPath();
+            dotx = dx + 3*dotrad;
+            doty = dy + 3*dotrad;
+            context.arc(dotx,doty,dotrad,0,Math.PI*2,true);
+            dotx = dx+dicewidth-3*dotrad;
+            doty = dy+diceheight-3*dotrad;
+            context.arc(dotx,doty,dotrad,0,Math.PI*2,true);
+            context.closePath();
+            context.fill();
+        }
+        function draw4() {
+            var dotx;
+            var doty;
+            context.beginPath();
+            dotx = dx + 3*dotrad;
+            doty = dy + 3*dotrad;
+            context.arc(dotx,doty,dotrad,0,Math.PI*2,true);
+            dotx = dx+dicewidth-3*dotrad;
+            doty = dy+diceheight-3*dotrad;
+            context.arc(dotx,doty,dotrad,0,Math.PI*2,true);
+            context.closePath();
+            context.fill();
+            context.beginPath();
+            dotx = dx + 3*dotrad;
+            doty = dy + diceheight-3*dotrad;  //no change
+            context.arc(dotx,doty,dotrad,0,Math.PI*2,true);
+            dotx = dx+dicewidth-3*dotrad;
+            doty = dy+ 3*dotrad;
+            context.arc(dotx,doty,dotrad,0,Math.PI*2,true);
+            context.closePath();
+            context.fill();
+        }
+        function draw2mid() {
+            var dotx;
+            var doty;
+            context.beginPath();
+            dotx = dx + 3*dotrad;
+            doty = dy + .5*diceheight;
+            context.arc(dotx,doty,dotrad,0,Math.PI*2,true);
+            dotx = dx+dicewidth-3*dotrad;
+            doty = dy + .5*diceheight; //no change
+            context.arc(dotx,doty,dotrad,0,Math.PI*2,true);
+            context.closePath();
+            context.fill();
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <div class="text-center">
+                    <canvas id="canvas" width="400" height="300">
+                        Your browser doesn't support the HTML5 element canvas.
+                    </canvas>
+                </div>
+                <form name="f" id="f">
+                    <div class="form-group">
+                        <label for="stage">阶段:</label>
+                        <input id="stage" name="stage" class="form-control" value="第一次投掷"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="pv">点数:</label>
+                        <input id="pv" name="pv" class="form-control" value="   "/>
+                    </div>
+                    <div class="form-group">
+                        <label for="outcome">结果:</label>
+                        <input id="outcome" name="outcome" class="form-control" value="     "/>
+                    </div>
+                    <div class="form-group">
+                        <label for="bank">银行:</label>
+                        <input id="bank" name="bank" class="form-control" value="100"/>
+                    </div>
+                </form>
+                <div class="text-center">
+                    <button class="btn btn-success" onClick="throwdice();">掷骰子</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
