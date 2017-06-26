@@ -1,2 +1,2 @@
-# craps
-a craps game
+# a craps game
+![](./images/3.gif)
